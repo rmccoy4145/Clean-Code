@@ -8,8 +8,14 @@ public class StudentHelper {
     private static final String GRADE_B = "B";
     private static final String GRADE_A = "A";
     private static final String GRADE_C = "C";
+    
+    
     private static final int LOWER_LIMIT_GRADE_A = 91; 
     private static final int MATHS_LOWER_INSCREASE = 5; 
+    
+    private static final int QUALIFY_MARK_INSCREASE = 5;
+    private static final int VERY_GOOD_MARK = 80;
+    private static final int NOT_GOOD_MARK = 20;
 	/* PROBLEM 1 */	
 	/*
 	* You get a grade B if marks are between 51 and 80 (both inclusive). Except for Maths where the upper limit is increased by 10.
@@ -65,11 +71,17 @@ public class StudentHelper {
     */
         
     public String willQualifyForQuiz(int marks1, int marks2, boolean isMaths) {
-        if ((isMaths ? marks1 <= 25 : marks1 <= 20)
-                || (isMaths ? marks2 <= 25 : marks2 <= 20)) return "NO";
-        if ((isMaths ? marks1 >= 85 : marks1 >= UPPER_LIMIT_GRADEB)
-                || (isMaths ? marks2 >= 85 : marks2 >= UPPER_LIMIT_GRADEB)) return "YES";
+        int mathsIncrease = isMaths? QUALIFY_MARK_INSCREASE : 0;
+        
+        int notGood = NOT_GOOD_MARK + mathsIncrease;
+        int veryGood = VERY_GOOD_MARK + mathsIncrease;
+        
+        if (marks1 <= notGood || marks2 <= notGood) return "NO";
+        
+        if (marks1 >= veryGood || marks2 >= veryGood) return "YES";
+        
         return "MAYBE";
     }	
+
 
 }
