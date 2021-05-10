@@ -16,6 +16,7 @@ import com.b.simple.design.model.customer.Currency;
 import com.b.simple.design.model.customer.Product;
 import com.b.simple.design.model.customer.ProductImpl;
 import com.b.simple.design.model.customer.ProductType;
+import org.junit.jupiter.api.Assertions;
 
 public class CustomerBOTest {
 
@@ -37,8 +38,39 @@ public class CustomerBOTest {
 
 		assertCurrency(expected, actual);
 	}
+        
+	@Test
+	public void testCustomerProductSum_TwoProductsDifferentCurrencies()
+			throws DifferentCurrenciesException {
 
-    private void assertCurrency(Amount expected, Amount actual)
+            Amount[] amounts = {
+                new AmountImpl(new BigDecimal("5.0"), Currency.EURO), 
+                new AmountImpl(new BigDecimal("6.0"), Currency.INDIAN_RUPEE)};
+            
+            
+		List<Product> products = createProductsWithAmounts(amounts);
+
+		Assertions.assertThrows(DifferentCurrenciesException.class, () ->
+                {
+                    customerBO.getCustomerProductsSum(products);
+                });
+	}
+
+
+	@Test
+	public void testCustomerProductSum2() throws DifferentCurrenciesException {
+
+		List<Product> products = new ArrayList<Product>();
+
+		Amount actual = customerBO.getCustomerProductsSum(products);
+                final Amount expected = new AmountImpl(new BigDecimal("0"), Currency.EURO);		
+                
+                assertCurrency(expected, actual);
+	}
+
+        
+        
+            private void assertCurrency(Amount expected, Amount actual)
     {
         assertEquals(expected.getCurrency(), actual.getCurrency());
         assertEquals(expected.getValue(), actual.getValue());
@@ -55,36 +87,5 @@ public class CustomerBOTest {
         }
         return products;
     }
-
-	@Test
-	public void testCustomerProductSum1() {
-
-		List<Product> products = createProductsWithAmounts(new Amount[] {
-                    new AmountImpl(new BigDecimal("5.0"), Currency.INDIAN_RUPEE), new AmountImpl(new BigDecimal("6.0"), Currency.EURO)});
-
-		@SuppressWarnings("unused")
-		Amount temp = null;
-
-		try {
-			temp = customerBO.getCustomerProductsSum(products);
-			fail("DifferentCurrenciesException is expected");
-		} catch (DifferentCurrenciesException e) {
-		}
-	}
-
-	@Test
-	public void testCustomerProductSum2() {
-
-		List<Product> products = new ArrayList<Product>();
-
-		Amount temp = null;
-
-		try {
-			temp = customerBO.getCustomerProductsSum(products);
-		} catch (DifferentCurrenciesException e) {
-		}
-		assertEquals(Currency.EURO, temp.getCurrency());
-		assertEquals(BigDecimal.ZERO, temp.getValue());
-	}
-
+        
 }
