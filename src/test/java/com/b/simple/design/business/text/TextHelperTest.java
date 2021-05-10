@@ -10,7 +10,7 @@ import com.b.simple.design.business.text.TextHelper;
 public class TextHelperTest {
 
 	TextHelper helper = new TextHelper();
-	
+        
 	@Test
 	@Disabled
 	public void testSwapLastTwoCharacters() {
@@ -29,4 +29,8 @@ public class TextHelperTest {
 		assertEquals("BCD",helper.truncateAInFirst2Positions("BACD"));
 		assertEquals("BBAA",helper.truncateAInFirst2Positions("BBAA"));
 	}
+        
+
+        
+        
 }

@@ -25,34 +25,42 @@ public class CustomerBOTest {
 	public void testCustomerProductSum_TwoProductsSameCurrencies()
 			throws DifferentCurrenciesException {
 
-		List<Product> products = new ArrayList<Product>();
+            Amount[] amounts = {
+                new AmountImpl(new BigDecimal("5.0"), Currency.EURO), 
+                new AmountImpl(new BigDecimal("6.0"), Currency.EURO)};
+            
+            Amount expected = new AmountImpl(new BigDecimal("11.0"), Currency.EURO);
+            
+		List<Product> products = createProductsWithAmounts(amounts);
+                
+                Amount actual = customerBO.getCustomerProductsSum(products);
 
-		products.add(
-				new ProductImpl(100, "Product 15", ProductType.BANK_GUARANTEE,
-						new AmountImpl(new BigDecimal("5.0"), Currency.EURO)));
-
-		products.add(
-				new ProductImpl(120, "Product 20", ProductType.BANK_GUARANTEE,
-						new AmountImpl(new BigDecimal("6.0"), Currency.EURO)));
-
-		Amount temp = customerBO.getCustomerProductsSum(products);
-
-		assertEquals(Currency.EURO, temp.getCurrency());
-		assertEquals(new BigDecimal("11.0"), temp.getValue());
+		assertCurrency(expected, actual);
 	}
+
+    private void assertCurrency(Amount expected, Amount actual)
+    {
+        assertEquals(expected.getCurrency(), actual.getCurrency());
+        assertEquals(expected.getValue(), actual.getValue());
+    }
+
+    private List<Product> createProductsWithAmounts(Amount[] amounts)
+    {
+        int productId = 100;
+        List<Product> products = new ArrayList<Product>();
+        for (Amount amount : amounts)
+        {
+          products.add(new ProductImpl(productId, "Product " + productId, ProductType.BANK_GUARANTEE, amount)); 
+          productId++;
+        }
+        return products;
+    }
 
 	@Test
 	public void testCustomerProductSum1() {
 
-		List<Product> products = new ArrayList<Product>();
-
-		products.add(new ProductImpl(100, "Product 15",
-				ProductType.BANK_GUARANTEE,
-				new AmountImpl(new BigDecimal("5.0"), Currency.INDIAN_RUPEE)));
-
-		products.add(
-				new ProductImpl(120, "Product 20", ProductType.BANK_GUARANTEE,
-						new AmountImpl(new BigDecimal("6.0"), Currency.EURO)));
+		List<Product> products = createProductsWithAmounts(new Amount[] {
+                    new AmountImpl(new BigDecimal("5.0"), Currency.INDIAN_RUPEE), new AmountImpl(new BigDecimal("6.0"), Currency.EURO)});
 
 		@SuppressWarnings("unused")
 		Amount temp = null;
