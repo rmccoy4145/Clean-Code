@@ -10,34 +10,36 @@ import com.b.simple.design.model.customer.Currency;
 import com.b.simple.design.model.customer.Product;
 
 public class CustomerBOImpl implements CustomerBO {
-
+    private static final Currency DEFAULT_CURENCY = Currency.EURO;    
+    
 	@Override
 	public Amount getCustomerProductsSum(List<Product> products)
 			throws DifferentCurrenciesException {
-		BigDecimal temp = BigDecimal.ZERO;
+            
+		if (products.isEmpty())
+			return new AmountImpl(BigDecimal.ZERO, DEFAULT_CURENCY);
 
-		if (products.size() == 0)
-			return new AmountImpl(temp, Currency.EURO);
-
-		// Throw Exception If Any of the product has a currency different from
-		// the first product
-		Currency firstProductCurrency = products.get(0).getAmount()
-				.getCurrency();
-
-		for (Product product : products) {
-			boolean currencySameAsFirstProduct = product.getAmount()
-					.getCurrency().equals(firstProductCurrency);
-			if (!currencySameAsFirstProduct) {
-				throw new DifferentCurrenciesException();
-			}
-		}
-
-		// Calculate Sum of Products
-		for (Product product : products) {
-			temp = temp.add(product.getAmount().getValue());
-		}
+                if(!doAllProductsHaveTheSameCurreny(products)) throw new DifferentCurrenciesException();
+              
+                BigDecimal totalSumOfProducts = sumOfAllProducts(products);               
 		
-		// Create new product
-		return new AmountImpl(temp, firstProductCurrency);
+		Currency firstProductCurrency = products.get(0).getAmount().getCurrency();
+		return new AmountImpl(totalSumOfProducts, firstProductCurrency);
 	}
+
+    private BigDecimal sumOfAllProducts(List<Product> products)
+    {
+        return products.stream().map((product) -> product.getAmount().getValue()).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private boolean doAllProductsHaveTheSameCurreny(List<Product> products)
+    {
+        Currency firstProductCurrency = products.get(0).getAmount().getCurrency();
+        return products.stream().allMatch((product) ->
+        {
+                return product.getAmount()
+                    .getCurrency().equals(firstProductCurrency);       
+        });
+    }
+
 }
